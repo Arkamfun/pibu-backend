@@ -1,0 +1,115 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id            Int            @id @default(autoincrement())
+    nama_lengkap  String
+    alamat        String
+    NIK           BigInt
+    tempat_lahir  String
+    tanggal_lahir DateTime
+    jenis_kelamin Jenis_Kelamin
+    kartu_anggota Kartu_anggota?
+}
+
+enum Jenis_Kelamin {
+    Pria
+    Wanita
+}
+
+model Kartu_anggota {
+    id            String       @id @default(uuid())
+    user_Id       Int          @unique
+    user          User         @relation(fields: [user_Id], references: [id], onDelete: Cascade)
+    nama_lengkap  String
+    tempat_lahir  String
+    tanggal_lahir DateTime
+    masa_berlaku  DateTime
+    review_buku   Review[]
+    Peminjaman    Peminjaman[]
+}
+
+model Buku {
+    id               String      @id @default(uuid())
+    kategori_buku_id Int
+    kategori_buku    Kategori    @relation(fields: [kategori_buku_id], references: [id], onDelete: Cascade)
+    judul            String
+    penulis          String
+    penerbit         String
+    tahun_penerbitan Int
+    ISBN             String
+    jumlah_tersedia  Int?
+    review_buku      Review[]
+    Peminjaman       Peminjaman? @relation(fields: [peminjamanId], references: [id])
+    peminjamanId     Int?
+    status           BookStatus
+    deksripsi        String
+    image            String
+
+    EksemplarBuku EksemplarBuku[]
+}
+
+model EksemplarBuku {
+    id              String         @id @default(uuid())
+    bukuId          String
+    buku            Buku           @relation(fields: [bukuId], references: [id], onDelete: Cascade)
+    kode_inventaris String         @unique
+    kondisi         String
+    status          EksmplarStatus
+    Peminjaman      Peminjaman[]
+}
+
+enum EksmplarStatus {
+    AVAILABLE
+    BORROWED
+    DAMAGED
+}
+
+enum BookStatus {
+    active
+    inactive
+}
+
+model Kategori {
+    id    Int    @id @default(autoincrement())
+    image String
+    nama  String
+    buku  Buku[]
+}
+
+model Review {
+    id         Int           @id @default(autoincrement())
+    buku_id    String
+    buku       Buku          @relation(fields: [buku_id], references: [id], onDelete: Cascade)
+    rating     Int
+    komentar   String
+    tanggal    DateTime      @default(now())
+    anggota_id String
+    anggota    Kartu_anggota @relation(fields: [anggota_id], references: [id], onDelete: Cascade)
+}
+
+model Peminjaman {
+    id                Int           @id @default(autoincrement())
+    anggota_id        String
+    eksemplar_buku_id String
+    eksemplar_buku    EksemplarBuku @relation(fields: [eksemplar_buku_id], references: [id], onDelete: Cascade)
+
+    anggota              Kartu_anggota @relation(fields: [anggota_id], references: [id], onDelete: Cascade)
+    tanggal_peminjaman   DateTime      @default(now())
+    tanggal_pengembalian DateTime
+    qr_code              String
+    status               Status        @default(Pending)
+    Buku                 Buku[]
+}
+
+enum Status {
+    Pending
+    Peminjaman
+    Pengembalian
+}
