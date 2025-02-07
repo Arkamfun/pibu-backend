@@ -14,14 +14,12 @@ export const getBookByUID = async (req: Request, res: Response) => {
     res.send(result)
 }
 
-export const getBookByName = (req: Request, res: Response) => {
-    console.log(req.body);
-    const { name } = req.body;
-    const result = book_service.getBookByNameOrPubisherOrAuthor(String(name));
+export const getBookByNameOrAuthor = async (req: Request, res: Response) => {
+    const { name } = req.params
+    const uriCode = decodeURIComponent(name)
+    const result = await book_service.getBookByNameOrAuthor(String(uriCode));
     res.send(result)
 }
-
-
 
 export const getBookByYear = async (req: Request, res: Response) => {
     try {
@@ -51,11 +49,12 @@ export const addBook = async (req: Request, res: Response) => {
         const combine = { ...book, image };
         const existBook = await book_service.getBookByName(String(book.judul));
         if (existBook.length > 0) {
+            console.log(existBook[0].id)
             const result = await eksemplar_service.createEksemplar(existBook[0])
-            res.send(result)
+            res.send({ result: result, message: "buku sudah ada, maka akan menambahkan eksemplar" })
         } else {
             const result = book_service.addBook(combine);
-            res.send(result)
+            res.send("buku berhasil ditambahkan")
         }
     } catch (error) {
         const err = error as Error

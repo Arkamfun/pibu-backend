@@ -24,15 +24,22 @@ enum Jenis_Kelamin {
 }
 
 model Kartu_anggota {
-    id            String       @id @default(uuid())
-    user_Id       Int          @unique
-    user          User         @relation(fields: [user_Id], references: [id], onDelete: Cascade)
-    nama_lengkap  String
-    tempat_lahir  String
-    tanggal_lahir DateTime
-    masa_berlaku  DateTime
-    review_buku   Review[]
-    Peminjaman    Peminjaman[]
+    id                String        @id @default(uuid())
+    user_Id           Int           @unique
+    user              User          @relation(fields: [user_Id], references: [id], onDelete: Cascade)
+    nama_lengkap      String
+    tempat_lahir      String
+    tanggal_lahir     DateTime
+    tanggal_pembuatan DateTime      @default(now())
+    masa_berlaku      DateTime
+    review_buku       Review[]
+    Peminjaman        Peminjaman[]
+    status            AnggotaStatus
+}
+
+enum AnggotaStatus {
+    Active
+    Non_Active
 }
 
 model Buku {

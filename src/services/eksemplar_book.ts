@@ -7,15 +7,22 @@ enum EksmplarStatus {
     DAMAGED = "DAMAGED"
 }
 export const createEksemplar = async (eksemplar: any) => {
-    return await prisma.eksemplarBuku.create({
+    console.log(eksemplar.id)
+    const invBook = await prisma.eksemplarBuku.count({ where: { bukuId: eksemplar.id } });
+    console.log(invBook);
+    const result = await prisma.eksemplarBuku.create({
         data: {
-            kode_inventaris: eksemplar.kode_inventaris,
-            kondisi: eksemplar.kondisi,
-            status: eksemplar.status,
-            bukuId: eksemplar.bukuId
-            
-        }
-    });
+            kode_inventaris: `INV-${invBook + 1}-${eksemplar.judul}`,
+            kondisi: "Baik",
+            status: "AVAILABLE",
+            bukuId: eksemplar.id
+
+        },
+
+    })
+    const updateBook = await prisma.buku.update({ where: { id: eksemplar.id }, data: { jumlah_tersedia: invBook } });
+
+    return result
 }
 
 export const getEksemplar = async () => {
@@ -28,7 +35,11 @@ export const getEksemplarByBookUID = async (UID: string) => {
 
 
 export const updateEksemplarStatus = async (UID: string, status: EksmplarStatus) => {
-    return await prisma.eksemplarBuku.updateMany({ where: { id: UID }, data: { status: status } });
+    return await prisma.eksemplarBuku.update({ where: { id: UID }, data: { status: status } });
+}
+
+export const updateKondisiEksemplar = async (UID: string, kondisi: string) => {
+    return await prisma.eksemplarBuku.update({ where: { id: UID }, data: { kondisi: kondisi } });
 }
 
 

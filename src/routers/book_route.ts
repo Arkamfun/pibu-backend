@@ -6,7 +6,7 @@ const book_route = Router();
 
 book_route.get("/", book_controller.getAllbook);
 book_route.get("/:UID", book_controller.getBookByUID);
-book_route.post("/name", book_controller.getBookByName);
+book_route.get("/name/:name", book_controller.getBookByNameOrAuthor);
 book_route.post("/year", book_controller.getBookByYear);
 book_route.get("/categories/:category", book_controller.getBookByCategories);
 book_route.post("/create", upload.single('image'), book_controller.addBook);
